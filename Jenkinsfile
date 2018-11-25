@@ -44,39 +44,16 @@ pipeline {
                     branch('master')
                 }
             }
-            parallel {
-                stage ('Deploy snapshot') {
-                    steps {
-                        sh "mvn deploy -DaltDeploymentRepository=$SNAPSHOT_REPOSITORY"
-                    }
-                }
-                stage ('Docker snapshot') {
-                    steps {
-                        script {
-                            docker.build "christmas-tree-animation-disco:$BUILD_NUMBER"
-                        }
-                    }
-                }
+            steps {
+                sh "mvn deploy -DaltDeploymentRepository=$SNAPSHOT_REPOSITORY"
             }
         }
         stage ('Deploy master') {
             when {
                 branch('master')
             }
-            parallel {
-                stage ('Deploy release') {
-                    steps {
-                        sh "mvn deploy -DaltDeploymentRepository=$RELEASE_REPOSITORY"
-                    }
-                }
-                stage ('Docker latest') {
-                    steps {
-                        script {
-                            def image = docker.build "$DOCKER_REPO/christmas-tree-animation-disco`:latest"
-                            image.push()
-                        }
-                    }
-                }
+            steps {
+                sh "mvn deploy -DaltDeploymentRepository=$RELEASE_REPOSITORY"
             }
         }
     }
