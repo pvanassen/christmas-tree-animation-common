@@ -2,7 +2,7 @@ package nl.pvanassen.christmas.tree.animation.common.util
 
 import java.awt.Color
 
-object Utils {
+object ColorUtils {
 
     /**
      * Package red/green/blue values into a single integer.
@@ -61,14 +61,5 @@ object Utils {
         val green = (getGreen(c1) + getGreen(c2)) / 2f
         val blue = (getBlue(c1) + getBlue(c2)) / 2f
         return makeColor(red.toInt(), green.toInt(), blue.toInt())
-    }
-
-    fun sleep(millis: Long) {
-        try {
-            Thread.sleep(millis)
-        } catch (e: InterruptedException) {
-            throw RuntimeException(e)
-        }
-
     }
 }
