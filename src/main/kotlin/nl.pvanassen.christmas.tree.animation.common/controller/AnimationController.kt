@@ -2,7 +2,6 @@ package nl.pvanassen.christmas.tree.animation.common.controller
 
 import io.micronaut.websocket.WebSocketSession
 import io.micronaut.websocket.annotation.OnMessage
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import nl.pvanassen.christmas.tree.animation.common.model.AnimationModel
@@ -10,20 +9,23 @@ import org.slf4j.LoggerFactory
 
 abstract class AnimationController {
 
-    private val fps = 60
-
     private val subscriber = Schedulers.single()
+
+    private val logger = LoggerFactory.getLogger(this.javaClass)
 
     @OnMessage
     fun onMessage(
             message: AnimationModel,
             session: WebSocketSession) {
 
-        LoggerFactory.getLogger(AnimationController::class.java).info("Received request for ${message.seconds} seconds")
+        logger.info("Received request for ${message.seconds} seconds")
 
-        Observable.fromIterable((0..message.seconds * fps))
+        val response = (0..message.seconds * message.fps)
                 .map { tick() }
-                .flatMap { Single.fromPublisher(session.send(it)).toObservable()}
+                .flatMap { it.asIterable() }
+
+        Single.fromPublisher(session.send(response))
+                .toObservable()
                 .subscribeOn(subscriber)
                 .subscribe()
     }
