@@ -17,7 +17,7 @@ abstract class AnimationController {
     }
 
     private fun getAnimation(frames:Int):ByteArray =
-        (0..frames).flatMap {
+        (0 until frames).flatMap {
             getFrame().asIterable()
         }.toByteArray()
 
