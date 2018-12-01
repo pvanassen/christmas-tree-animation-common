@@ -5,7 +5,6 @@ import io.micronaut.http.annotation.Get
 import io.reactivex.Single
 import org.slf4j.LoggerFactory
 
-@Controller
 abstract class AnimationController {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
