@@ -1,6 +1,5 @@
 package nl.pvanassen.christmas.tree.animation.common.controller
 
-import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.reactivex.Single
 import org.slf4j.LoggerFactory
@@ -9,7 +8,7 @@ abstract class AnimationController {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    @Get("/animation/{seconds}/{fps}")
+    @Get(value = "/animation/{seconds}/{fps}", processes = ["application/octet-stream"])
     fun getAnimation(seconds:Int, fps:Int):Single<List<Byte>> {
         logger.info("Received request for $seconds seconds with $fps fps")
         return Single.just(seconds * fps)
