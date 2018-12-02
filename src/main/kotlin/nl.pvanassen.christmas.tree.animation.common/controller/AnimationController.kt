@@ -1,11 +1,14 @@
 package nl.pvanassen.christmas.tree.animation.common.controller
 
+import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.tracing.annotation.ContinueSpan
 import io.reactivex.Single
+import nl.pvanassen.christmas.tree.animation.common.model.Animation
 import org.slf4j.LoggerFactory
 
-abstract class AnimationController {
+@Controller
+open class AnimationController(private val animation: Animation) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -20,9 +23,7 @@ abstract class AnimationController {
 
     private fun getAnimation(frames:Int):ByteArray =
         (0 until frames).flatMap {
-            getFrame().asIterable()
+            animation.getFrame().asIterable()
         }.toByteArray()
 
-
-    abstract fun getFrame(): ByteArray
 }
