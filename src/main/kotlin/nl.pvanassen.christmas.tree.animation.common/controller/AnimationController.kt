@@ -16,14 +16,15 @@ open class AnimationController(private val animation: Animation) {
     @Get(value = "/animation/{seconds}/{fps}", processes = ["application/octet-stream"])
     open fun getAnimation(seconds:Int, fps:Int):Single<ByteArray> {
         logger.info("Received request for $seconds seconds with $fps fps")
+        val nsPerFrame = (seconds * 1_000_000_000) / fps
         return Single.just(seconds * fps)
-                .map { getAnimation(it) }
+                .map { getFrames(it, nsPerFrame) }
 
     }
 
-    private fun getAnimation(frames:Int):ByteArray =
+    private fun getFrames(frames:Int, nsPerFrame:Int):ByteArray =
         (0 until frames).flatMap {
-            animation.getFrame().asIterable()
+            animation.getFrame(it, nsPerFrame).asIterable()
         }.toByteArray()
 
 }
