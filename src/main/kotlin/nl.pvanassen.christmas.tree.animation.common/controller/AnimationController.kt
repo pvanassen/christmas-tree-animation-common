@@ -19,9 +19,9 @@ open class AnimationController(private val animation: Animation) {
     @Get(value = "/animation/{seconds}/{fps}", processes = ["application/octet-stream"])
     open fun getAnimation(seconds:Int, fps:Int):Single<ByteArray> {
         logger.info("Received request for $seconds seconds with $fps fps")
-        val seondsPerFrame = 1 / fps
-        val msPerFrame = seondsPerFrame / 1_000.0
-        val nsPerFrame = msPerFrame / 1_000_000.0
+        val seondsPerFrame = 1 / fps.toDouble()
+        val msPerFrame = seondsPerFrame * 1_000
+        val nsPerFrame = msPerFrame * 1_000_000
         val seed = random.nextLong()
         return Single.just(seconds * fps)
                 .map { getFrames(seed, it, nsPerFrame.toInt()) }
