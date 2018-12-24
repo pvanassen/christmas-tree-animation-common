@@ -15,22 +15,44 @@ open class AnimationController(private val animation: Animation) {
 
     private val random = Random()
 
+    init {
+        if (animation.isFixedTimeAnimation() && animation.getFixedTimeAnimationFrames() <= 0) {
+            throw IllegalArgumentException("Cannot have a fixed time animation of less than 0")
+        }
+    }
+
     @ContinueSpan
     @Get(value = "/animation/{seconds}/{fps}", processes = ["application/octet-stream"])
     open fun getAnimation(seconds:Int, fps:Int):Single<ByteArray> {
         logger.info("Received request for $seconds seconds with $fps fps")
-        val seondsPerFrame = 1 / fps.toDouble()
-        val msPerFrame = seondsPerFrame * 1_000
+
+        if (seconds == -1 && !animation.isFixedTimeAnimation()) {
+            throw IllegalArgumentException("One must request a positive amount of seconds")
+        }
+
+        val secondsPerFrame = 1 / fps.toDouble()
+        val msPerFrame = secondsPerFrame * 1_000
         val nsPerFrame = msPerFrame * 1_000_000
         val seed = random.nextLong()
-        return Single.just(seconds * fps)
-                .map { getFrames(seed, it, nsPerFrame.toInt()) }
-
+        return if (seconds > 0) {
+            getAnimation(seconds * fps, seed, nsPerFrame.toInt())
+        }
+        else {
+            getFixedTimeAnimation(seed, nsPerFrame.toInt())
+        }
     }
+
+    private fun getAnimation(frames:Int, seed:Long, nsPerFrame: Int): Single<ByteArray> =
+        Single.just(frames)
+                .map { getFrames(seed, it, nsPerFrame) }
+
+    private fun getFixedTimeAnimation(seed:Long, nsPerFrame: Int): Single<ByteArray> =
+        Single.just(animation.getFixedTimeAnimationFrames())
+                .map { getFrames(seed, it, nsPerFrame) }
+
 
     private fun getFrames(seed:Long, frames:Int, nsPerFrame:Int):ByteArray =
         (0 until frames).flatMap {
             animation.getFrame(seed, it, nsPerFrame).asIterable()
         }.toByteArray()
-
 }
