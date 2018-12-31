@@ -38,19 +38,19 @@ open class AnimationController(private val animation: Animation<Any>) {
             getAnimation(seconds * fps, seed, nsPerFrame.toInt())
         }
         else {
-            getFixedTimeAnimation(seed, nsPerFrame.toInt(), animation.getHelperObject())
+            getFixedTimeAnimation(seed, nsPerFrame.toInt(), animation.getStateObject())
         }
     }
 
     private fun getAnimation(frames:Int, seed:Long, nsPerFrame: Int): Single<ByteArray> {
-        val helperObject = animation.getHelperObject()
+        val state = animation.getStateObject()
         return Single.just(frames)
-                .map { getFrames(seed, it, nsPerFrame, helperObject) }
+                .map { getFrames(seed, it, nsPerFrame, state) }
     }
 
-    private fun getFixedTimeAnimation(seed:Long, nsPerFrame: Int, helperObject:Any): Single<ByteArray> =
-        Single.just(animation.getFixedTimeAnimationFrames())
-                .map { getFrames(seed, it, nsPerFrame, helperObject) }
+    private fun getFixedTimeAnimation(seed:Long, nsPerFrame: Int, state:Any): Single<ByteArray> =
+        Single.just(animation.getFixedTimeAnimationFrames(state))
+                .map { getFrames(seed, it, nsPerFrame, state) }
 
 
     private fun getFrames(seed:Long, frames:Int, nsPerFrame:Int, helperObject:Any):ByteArray =
