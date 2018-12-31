@@ -15,12 +15,6 @@ open class AnimationController(private val animation: Animation<Any>) {
 
     private val random = Random()
 
-    init {
-        if (animation.isFixedTimeAnimation() && animation.getFixedTimeAnimationFrames() <= 0) {
-            throw IllegalArgumentException("Cannot have a fixed time animation of less than 0")
-        }
-    }
-
     @ContinueSpan
     @Get(value = "/animation/{seconds}/{fps}", processes = ["application/octet-stream"])
     open fun getAnimation(seconds:Int, fps:Int):Single<ByteArray> {
