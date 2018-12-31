@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 @Controller
-open class AnimationController(private val animation: Animation) {
+open class AnimationController(private val animation: Animation<Any>) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -38,21 +38,23 @@ open class AnimationController(private val animation: Animation) {
             getAnimation(seconds * fps, seed, nsPerFrame.toInt())
         }
         else {
-            getFixedTimeAnimation(seed, nsPerFrame.toInt())
+            getFixedTimeAnimation(seed, nsPerFrame.toInt(), animation.getHelperObject())
         }
     }
 
-    private fun getAnimation(frames:Int, seed:Long, nsPerFrame: Int): Single<ByteArray> =
-        Single.just(frames)
-                .map { getFrames(seed, it, nsPerFrame) }
+    private fun getAnimation(frames:Int, seed:Long, nsPerFrame: Int): Single<ByteArray> {
+        val helperObject = animation.getHelperObject()
+        return Single.just(frames)
+                .map { getFrames(seed, it, nsPerFrame, helperObject) }
+    }
 
-    private fun getFixedTimeAnimation(seed:Long, nsPerFrame: Int): Single<ByteArray> =
+    private fun getFixedTimeAnimation(seed:Long, nsPerFrame: Int, helperObject:Any): Single<ByteArray> =
         Single.just(animation.getFixedTimeAnimationFrames())
-                .map { getFrames(seed, it, nsPerFrame) }
+                .map { getFrames(seed, it, nsPerFrame, helperObject) }
 
 
-    private fun getFrames(seed:Long, frames:Int, nsPerFrame:Int):ByteArray =
+    private fun getFrames(seed:Long, frames:Int, nsPerFrame:Int, helperObject:Any):ByteArray =
         (0 until frames).flatMap {
-            animation.getFrame(seed, it, nsPerFrame).asIterable()
+            animation.getFrame(seed, it, nsPerFrame, helperObject).asIterable()
         }.toByteArray()
 }
